@@ -4,6 +4,8 @@ import System.Directory
 import Control.Exception
 import Data.List
 
+import Todo.UnknownCommand
+
 main = do
     arguments <- getArgs
 
@@ -103,6 +105,3 @@ remove [filename, numberString] = do
 
     overwriteRawItemsToFile filename newRawItems
 remove _ = putStrLn "The remove command takes a file name and a number as arguments."
-
-unknownCommand :: String -> [String] -> IO()
-unknownCommand command _ = putStrLn $ "Unknown command: " ++ command
