@@ -1,6 +1,7 @@
 import System.Environment
 import System.IO
 import System.Directory
+import Control.Exception
 import Data.List
 
 main = do
@@ -34,11 +35,15 @@ extractItem rawItems numberString =
 
 overwriteRawItemsToFile :: String -> String -> IO ()
 overwriteRawItemsToFile filename rawItems = do
-  (tempName, tempHandle) <- openTempFile "." "temp"
-  hPutStr tempHandle rawItems
-  hClose tempHandle
-  removeFile filename
-  renameFile tempName filename
+  bracketOnError (openTempFile "." "temp")
+    (\(tempName, tempHandle) -> do
+        hClose tempHandle
+        removeFile tempName)
+    (\(tempName, tempHandle) -> do
+        hPutStr tempHandle rawItems
+        hClose tempHandle
+        removeFile filename
+        renameFile tempName filename)
 
 view :: [String] -> IO ()
 view [filename] =
