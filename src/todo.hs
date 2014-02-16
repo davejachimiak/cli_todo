@@ -5,19 +5,34 @@ import Control.Exception
 import Data.List
 
 main = do
-    (command:arguments) <- getArgs
-    dispatch command arguments
+    arguments <- getArgs
+
+    if length arguments > 0
+        then dispatch (head arguments) (tail arguments)
+        else synopsis
 
 dispatch :: String -> [String] -> IO ()
+dispatch "-h"     = help
 dispatch "add"    = add
 dispatch "bump"   = bump
-dispatch "view"   = view
 dispatch "remove" = remove
+dispatch "view"   = view
 dispatch command  = unknownCommand command
+
+help :: [String] -> IO ()
+help _ = synopsis
+
+synopsis :: IO ()
+synopsis = do
+    putStrLn "general usage: todo [-h | command arguments]"
+    putStrLn ""
+    putStrLn "specific usage: todo add filename \"task item\""
+    putStrLn "                todo bump filename task_number"
+    putStrLn "                todo remove filename task_number"
+    putStrLn "                todo view filename"
 
 add :: [String] -> IO ()
 add [filename, item] = appendFile filename (item ++ "\n")
-add _ = putStrLn "The add command takes a file name and a task as arguments."
 
 bump :: [String] -> IO ()
 bump [filename, numberString] = do
