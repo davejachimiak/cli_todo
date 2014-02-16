@@ -23,17 +23,40 @@ dispatch "view"   = view
 dispatch unknown  = unknownCommand unknown
 
 add :: [String] -> IO ()
-add [filename, item] = appendFile filename (item ++ "\n")
+add [filepath, item] = appendFile filepath (item ++ "\n")
+add _ = wrongNumberOfArguments
 
 bump :: [String] -> IO ()
-bump [filename, numberString] = do
-    rawItems <- readFile filename
+bump [filepath, numberString] = do
+    rawItems <- readFile filepath
 
     let (items, bumpedItem) = extractItem rawItems numberString
         newRawItems         = unlines $ bumpedItem:delete bumpedItem items
 
-    overwriteRawItemsToFile filename newRawItems
-bump _ = putStrLn "The bump command takes a file name and number as arguments."
+    overwriteRawItemsToFile filepath newRawItems
+bump _ = wrongNumberOfArguments
+
+view :: [String] -> IO ()
+view [filepath] =
+    let numerizeItem number item = (show number) ++ " -- " ++ item
+    in do
+        rawItems <- readFile filepath
+
+        let items         = lines rawItems
+            numberedItems = zipWith numerizeItem [0..] items
+
+        mapM_ putStrLn numberedItems
+view _ = wrongNumberOfArguments
+
+remove :: [String] -> IO ()
+remove [filepath, numberString] = do
+    rawItems <- readFile filepath
+
+    let (items, removedItem) = extractItem rawItems numberString
+        newRawItems = unlines $ delete removedItem items
+
+    overwriteRawItemsToFile filepath newRawItems
+remove _ = wrongNumberOfArguments
 
 extractItem :: String -> String -> ([String], String)
 extractItem rawItems numberString =
@@ -42,35 +65,15 @@ extractItem rawItems numberString =
     in (items, items !! number)
 
 overwriteRawItemsToFile :: String -> String -> IO ()
-overwriteRawItemsToFile filename rawItems = do
+overwriteRawItemsToFile filepath rawItems = do
     bracketOnError (openTempFile "." "temp")
-      (\(tempName, tempHandle) -> do
-          hClose tempHandle
-          removeFile tempName)
-      (\(tempName, tempHandle) -> do
-          hPutStr tempHandle rawItems
-          hClose tempHandle
-          removeFile filename
-          renameFile tempName filename)
+        (\(tempName, tempHandle) -> do
+            hClose tempHandle
+            removeFile tempName)
+        (\(tempName, tempHandle) -> do
+            hPutStr tempHandle rawItems
+            hClose tempHandle
+            removeFile filepath
+            renameFile tempName filepath)
 
-view :: [String] -> IO ()
-view [filename] =
-    let numerizeItem number item = (show number) ++ " -- " ++ item
-    in do
-      rawItems <- readFile filename
-
-      let items         = lines rawItems
-          numberedItems = zipWith numerizeItem [0..] items
-
-      mapM_ putStrLn numberedItems
-view _ = putStrLn "The view command takes a file name as an argument."
-
-remove :: [String] -> IO ()
-remove [filename, numberString] = do
-    rawItems <- readFile filename
-
-    let (items, removedItem) = extractItem rawItems numberString
-        newRawItems = unlines $ delete removedItem items
-
-    overwriteRawItemsToFile filename newRawItems
-remove _ = putStrLn "The remove command takes a file name and a number as arguments."
+wrongNumberOfArguments = putStrLn "Wrong number of arguments. Try the `-h' option for usage."

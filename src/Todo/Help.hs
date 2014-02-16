@@ -22,16 +22,16 @@ synopsis = do
     putStrLn $ "                " ++ viewUsage
 
 addUsage :: String
-addUsage = usageString "add filename \"task item\""
+addUsage = usageString "add filepath \"task item\""
 
 bumpUsage :: String
-bumpUsage = usageString "bump filename task_number"
+bumpUsage = usageString "bump filepath task_number"
 
 removeUsage :: String
-removeUsage = usageString "remove filename task_number"
+removeUsage = usageString "remove filepath task_number"
 
 viewUsage :: String
-viewUsage = usageString "view filename"
+viewUsage = usageString "view filepath"
 
 usageString :: String -> String
 usageString string = "todo " ++ string
