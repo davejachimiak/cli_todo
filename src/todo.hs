@@ -9,12 +9,36 @@ main = do
 
 dispatch :: String -> [String] -> IO ()
 dispatch "add"    = add
+dispatch "bump"   = bump
 dispatch "view"   = view
 dispatch "remove" = remove
 dispatch command  = unknownCommand command
 
 add :: [String] -> IO ()
 add [filename, item] = appendFile filename (item ++ "\n")
+
+bump :: [String] -> IO ()
+bump [filename, numberString] = do
+  rawItems <- readFile filename
+
+  let (items, bumpedItem) = extractItem rawItems numberString
+      newRawItems         = unlines $ bumpedItem:delete bumpedItem items
+
+  overwriteRawItemsToFile filename newRawItems
+
+extractItem :: String -> String -> ([String], String)
+extractItem rawItems numberString =
+  let number = read numberString :: Int
+      items  = lines rawItems
+  in (items, items !! number)
+
+overwriteRawItemsToFile :: String -> String -> IO ()
+overwriteRawItemsToFile filename rawItems = do
+  (tempName, tempHandle) <- openTempFile "." "temp"
+  hPutStr tempHandle rawItems
+  hClose tempHandle
+  removeFile filename
+  renameFile tempName filename
 
 view :: [String] -> IO ()
 view [filename] =
@@ -31,16 +55,10 @@ remove :: [String] -> IO ()
 remove [filename, numberString] = do
   rawItems <- readFile filename
 
-  let number      = read numberString :: Int
-      items       = lines rawItems
-      removedItem = items !! number
+  let (items, removedItem) = extractItem rawItems numberString
       newRawItems = unlines $ delete removedItem items
 
-  (tempName, tempHandle) <- openTempFile "." "temp"
-  hPutStr tempHandle newRawItems
-  hClose tempHandle
-  removeFile filename
-  renameFile tempName filename
+  overwriteRawItemsToFile filename newRawItems
 
 unknownCommand :: String -> [String] -> IO()
 unknownCommand command _ = putStrLn $ "Unknown command: " ++ command
