@@ -4,8 +4,8 @@ import System.Directory
 import Data.List
 
 main = do
-  (command:args) <- getArgs
-  dispatch command args
+  (command:arguments) <- getArgs
+  dispatch command arguments
 
 dispatch :: String -> [String] -> IO ()
 dispatch "add"    = add
@@ -18,26 +18,26 @@ add [filename, item] = appendFile filename (item ++ "\n")
 
 view :: [String] -> IO ()
 view [filename] =
-  let zipF n item = (show n) ++ " -- " ++ item
+  let numerizeItem number item = (show number) ++ " -- " ++ item
   in do
     rawItems <- readFile filename
 
     let items         = lines rawItems
-        numberedItems = zipWith zipF [0..] items
+        numberedItems = zipWith numerizeItem [0..] items
 
     mapM_ putStrLn numberedItems
 
 remove :: [String] -> IO ()
-remove [filename, nString] = do
+remove [filename, numberString] = do
   rawItems <- readFile filename
 
-  let n           = read nString :: Int
+  let number      = read numberString :: Int
       items       = lines rawItems
-      removedItem = items !! n
-      newItems    = unlines $ delete removedItem items
+      removedItem = items !! number
+      newRawItems = unlines $ delete removedItem items
 
   (tempName, tempHandle) <- openTempFile "." "temp"
-  hPutStr tempHandle newItems
+  hPutStr tempHandle newRawItems
   hClose tempHandle
   removeFile filename
   renameFile tempName filename
