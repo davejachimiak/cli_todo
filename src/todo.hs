@@ -5,6 +5,7 @@ import Control.Exception
 import Data.List
 
 import Todo.UnknownCommand
+import Todo.Help
 
 main = do
     arguments <- getArgs
@@ -20,38 +21,6 @@ dispatch "bump"   = bump
 dispatch "remove" = remove
 dispatch "view"   = view
 dispatch unknown  = unknownCommand unknown
-
-help :: [String] -> IO ()
-help ("add":_)      = putStrLn addUsage
-help ("bump":_)     = putStrLn bumpUsage
-help ("remove":_)   = putStrLn removeUsage
-help ("view":_)     = putStrLn viewUsage
-help []             = synopsis
-help (unknown:args) = unknownCommand unknown args
-
-addUsage :: String
-addUsage = usageString "add filename \"task item\""
-
-bumpUsage :: String
-bumpUsage = usageString "bump filename task_number"
-
-removeUsage :: String
-removeUsage = usageString "remove filename task_number"
-
-viewUsage :: String
-viewUsage = usageString "view filename"
-
-usageString :: String -> String
-usageString string = "todo " ++ string
-
-synopsis :: IO ()
-synopsis = do
-    putStrLn "general usage: todo [-h[command] | command arguments]"
-    putStrLn ""
-    putStrLn $ "specific usage: " ++ addUsage
-    putStrLn $ "                " ++ bumpUsage
-    putStrLn $ "                " ++ removeUsage
-    putStrLn $ "                " ++ viewUsage
 
 add :: [String] -> IO ()
 add [filename, item] = appendFile filename (item ++ "\n")
