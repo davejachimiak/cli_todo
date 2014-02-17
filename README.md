@@ -1,7 +1,7 @@
 This is a simple todo app for the command line written in Haskell.
 It is an expanded version of the todo app from Chapter 9 of Learn You
 a Haskell for Great Good! by Miran Lipovača. It adds items to, removes items
-from, and bumps items to the top of lists of a given file.
+from, and bumps items to the top of lists of declared files.
 
 ### Install
 
