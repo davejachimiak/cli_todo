@@ -26,3 +26,25 @@ todo remove filepath task_number
 ```
 todo view filepath
 ```
+
+### Example
+
+```sh
+$ touch morning.txt
+$ todo add ./morning.txt "Brush teeth"
+$ todo add ./morning.txt "Drink coffee"
+$ todo add ./morning.txt "Go to work"
+$ todo view ./morning.txt                                                                                 ~/github/cli_todo system  (master) ✗
+0 -- Brush teeth
+1 -- Drink coffee
+2 -- Go to work
+$ todo bump ./morning.txt 1
+$ todo view ./morning.txt                                                                                 ~/github/cli_todo system  (master) ✗
+0 -- Drink coffee
+1 -- Brush teeth
+2 -- Go to work
+$ todo remove ./morning.txt 0
+$ todo view ./morning.txt                                                                                 ~/github/cli_todo system  (master) ✗
+0 -- Brush teeth
+1 -- Go to work
+```
