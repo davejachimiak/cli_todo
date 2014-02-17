@@ -5,12 +5,12 @@ module Todo.Help
 import Todo.UnknownCommand
 
 help :: [String] -> IO ()
-help ("add":_)      = putStrLn addUsage
-help ("bump":_)     = putStrLn bumpUsage
-help ("remove":_)   = putStrLn removeUsage
-help ("view":_)     = putStrLn viewUsage
-help []             = synopsis
-help (unknown:args) = unknownCommand unknown args
+help ("add":_)    = putStrLn addUsage
+help ("bump":_)   = putStrLn bumpUsage
+help ("remove":_) = putStrLn removeUsage
+help ("view":_)   = putStrLn viewUsage
+help []           = synopsis
+help (command:_)  = unknownCommand command
 
 synopsis :: IO ()
 synopsis = do

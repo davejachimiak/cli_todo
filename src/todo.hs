@@ -15,12 +15,12 @@ main = do
         else synopsis
 
 dispatch :: String -> [String] -> IO ()
-dispatch "-h"     = help
-dispatch "add"    = add
-dispatch "bump"   = bump
-dispatch "remove" = remove
-dispatch "view"   = view
-dispatch unknown  = unknownCommand unknown
+dispatch "-h"           = help
+dispatch "add"          = add
+dispatch "bump"         = bump
+dispatch "remove"       = remove
+dispatch "view"         = view
+dispatch unknownCommand = unknownWithArgs unknownCommand
 
 add :: [String] -> IO ()
 add [filepath, item] = appendFile filepath (item ++ "\n")
@@ -77,3 +77,6 @@ overwriteRawItemsToFile filepath rawItems = do
             renameFile tempName filepath)
 
 wrongNumberOfArguments = putStrLn "Wrong number of arguments. Try the `-h' option for usage."
+
+unknownWithArgs :: String -> [String] -> IO ()
+unknownWithArgs command _ = unknownCommand command
